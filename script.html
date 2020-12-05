@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <main></main>
+</body>
+
+<style>
+.deployment_container {
+    border: 1px solid black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+</style>
+
+<script>
+let username = "Knightwalker";
+let repo = "CodeGigas";
+let token = "d5daaa062a7230cd5ab651a6578e054a4fe2e1c9";
+
+var xhr = new XMLHttpRequest();
+xhr.onreadystatechange = () => {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+        let res = JSON.parse(xhr.responseText);
+
+        for (element of res) {
+           //console.log(element);
+        }
+
+        let fragment = document.createDocumentFragment();
+        for (let element of res) {
+            const id = element.id;
+
+            let deploymentEl = document.createElement("div"); deploymentEl.className = "deployment_container";
+            let idEl = document.createElement("div"); idEl.innerText = `id: ${id}`;
+            let descriptionEl = document.createElement("div"); descriptionEl.innerText = `description: ${element.description}`;
+            let environmentEl = document.createElement("div"); environmentEl.innerText = `environment: ${element.environment}`;
+            let statusesEl = document.createElement("div"); statusesEl.id = `statuses_id_${element.id}`; statusesEl.innerText = "statuses:";
+
+            getDeploymentStatuses(id, (statuses) => {
+                for (let element of statuses) {
+                    const id = element.id;
+
+                    let idEl = document.createElement("div"); idEl.innerText = `-id: ${id}`;
+                    let stateEl = document.createElement("div"); stateEl.innerText = `-state: ${element.state}`;
+                    statusesEl.appendChild(idEl);
+                    statusesEl.appendChild(stateEl);
+                }
+            });
+
+            let setInactiveBtnEl = document.createElement("button"); 
+            setInactiveBtnEl.type = "button"; 
+            setInactiveBtnEl.textContent = "Set Inactive";
+            setInactiveBtnEl.addEventListener("click", () => {
+                //console.log(id);
+                let data = JSON.stringify({state: "inactive"});
+                let xhr2 = new XMLHttpRequest();
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState == 4 && xhr.status == 201) {
+                        let res = JSON.parse(xhr.responseText);
+                        let idEl = document.createElement("div"); idEl.innerText = `-id: ${res.id}`;
+                        let stateEl = document.createElement("div"); stateEl.innerText = `-state: ${res.state}`;
+                        statusesEl.insertBefore(stateEl, statusesEl.childNodes[1]);
+                        statusesEl.insertBefore(idEl, statusesEl.childNodes[1]);
+                        console.log(fragment.textContent);
+                    }
+                }
+                xhr.open("POST", `https://api.github.com/repos/${username}/${repo}/deployments/${id}/statuses`);
+                xhr.setRequestHeader("accept", "application/vnd.github.ant-man-preview+json");
+                xhr.setRequestHeader("Authorization", `token ${token}`);
+                xhr.send(data);
+            });
+
+            let deleteDeploymentBtn = document.createElement("button");
+            deleteDeploymentBtn.type = "button"; 
+            deleteDeploymentBtn.textContent = "Delete Deployment";
+            deleteDeploymentBtn.addEventListener("click", () => {
+                //console.log(id);
+                let xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState == 4 && xhr.status == 204) {
+                        document.getElementsByTagName("main")[0].removeChild(deploymentEl);
+                    }
+                }
+                xhr.open("DELETE", `https://api.github.com/repos/${username}/${repo}/deployments/${id}`);
+                xhr.setRequestHeader("Authorization", `token ${token}`);
+                xhr.send();
+            });
+
+            deploymentEl.appendChild(idEl);
+            deploymentEl.appendChild(descriptionEl);
+            deploymentEl.appendChild(environmentEl);
+            deploymentEl.appendChild(statusesEl);
+
+            deploymentEl.appendChild(setInactiveBtnEl);
+            deploymentEl.appendChild(deleteDeploymentBtn);
+
+            fragment.appendChild(deploymentEl);
+        }
+        document.getElementsByTagName("main")[0].appendChild(fragment);
+
+    }
+};
+xhr.open("GET", `https://api.github.com/repos/${username}/${repo}/deployments`, true);
+xhr.send();
+
+const getDeploymentStatuses = (id, callback) => {
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+            let res = JSON.parse(xhr.responseText);
+            //console.log(res);
+            callback(res);
+        }
+    }
+    xhr.open("GET", `https://api.github.com/repos/${username}/${repo}/deployments/${id}/statuses`);
+    xhr.send();
+}
+
+</script>
+
+</html>
