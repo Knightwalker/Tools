@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="config.js"></script>
 </head>
 <body>
     <main></main>
@@ -18,9 +19,9 @@
 </style>
 
 <script>
-let username = "Knightwalker";
-let repo = "CodeGigas";
-let token = "d5daaa062a7230cd5ab651a6578e054a4fe2e1c9";
+let username = config.username;
+let repo = config.repo;
+let personal_access_token = config.personal_access_token;
 
 var xhr = new XMLHttpRequest();
 xhr.onreadystatechange = () => {
@@ -70,8 +71,8 @@ xhr.onreadystatechange = () => {
                     }
                 }
                 xhr.open("POST", `https://api.github.com/repos/${username}/${repo}/deployments/${id}/statuses`);
-                xhr.setRequestHeader("accept", "application/vnd.github.ant-man-preview+json");
-                xhr.setRequestHeader("Authorization", `token ${token}`);
+                xhr.setRequestHeader("accept", "application/vnd.github.v3+json");
+                xhr.setRequestHeader("Authorization", `token ${personal_access_token}`);
                 xhr.send(data);
             });
 
@@ -79,7 +80,7 @@ xhr.onreadystatechange = () => {
             deleteDeploymentBtn.type = "button"; 
             deleteDeploymentBtn.textContent = "Delete Deployment";
             deleteDeploymentBtn.addEventListener("click", () => {
-                //console.log(id);
+                console.log(`https://api.github.com/repos/${username}/${repo}/deployments/${id}`);
                 let xhr = new XMLHttpRequest();
                 xhr.onreadystatechange = () => {
                     if (xhr.readyState == 4 && xhr.status == 204) {
@@ -87,7 +88,8 @@ xhr.onreadystatechange = () => {
                     }
                 }
                 xhr.open("DELETE", `https://api.github.com/repos/${username}/${repo}/deployments/${id}`);
-                xhr.setRequestHeader("Authorization", `token ${token}`);
+                xhr.setRequestHeader("accept", "application/vnd.github.v3+json");
+                xhr.setRequestHeader("Authorization", `token ${personal_access_token}`);
                 xhr.send();
             });
 
