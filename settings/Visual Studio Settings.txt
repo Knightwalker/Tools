@@ -1,0 +1,2 @@
+# Stop Visual Studio from launching a new browser when starting debug, open a new tab instead.
+Tools > Options > Projects and Solutions > Web Projects > Uncheck "Stop debugger when browser is closed, close browser when debugging stops"

@@ -1,0 +1,2 @@
+1. Disable "Compact folders in Explorer"
+-link: "https://code.visualstudio.com/updates/v1_41#_compact-folders-in-explorer"
